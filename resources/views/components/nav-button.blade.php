@@ -1,54 +1,44 @@
 @props([
-    'type' => 'submit',
-    'href' => null,
+    'type' => 'button',
     'color' => 'primary',
     'size' => 'md',
     'icon' => null,
+    'fullWidth' => false,
     'class' => ''
 ])
 
 @php
-    $baseClasses = 'font-mono font-semibold uppercase transition-all duration-300 active:translate-y-1';
-
-    $sizeClasses = match($size) {
+    $colorClasses = [
+        'primary' => 'bg-primary text-primary-foreground hover:brightness-110 border-b-4 border-black/30 active:border-b-0 active:translate-y-1',
+        'secondary' => 'bg-secondary text-secondary-foreground hover:brightness-110 border-b-4 border-black/30 active:border-b-0 active:translate-y-1',
+        'destructive' => 'bg-destructive text-destructive-foreground hover:brightness-110 border-b-4 border-black/30 active:border-b-0 active:translate-y-1',
+        'green' => 'bg-green-500 text-white hover:brightness-110 border-b-4 border-black/30 active:border-b-0 active:translate-y-1',
+        'card' => 'bg-card text-foreground',
+    ];
+    $sizeClasses = [
         'sm' => 'text-xs px-3 py-2',
-        'md' => 'text-sm px-4 py-3',
-        'lg' => 'text-base px-6 py-4',
-        default => 'text-sm px-4 py-3'
-    };
-
-    $colorClasses = match($color) {
-        'primary' => 'bg-primary text-primary-foreground border-b-4 border-black/30 hover:brightness-110',
-        'secondary' => 'bg-secondary text-white border-b-4 border-black/30 hover:brightness-110',
-        'destructive' => 'bg-red-600 text-white border-b-4 border-black/30 hover:brightness-110',
-        'card' => 'bg-card text-white border-b-4 border-black/30 hover:brightness-110',
-        'success' => 'bg-green-500 text-white border-b-4 border-black/30 hover:brightness-110',
-        default => 'bg-primary text-primary-foreground border-b-4 border-black/30 hover:brightness-110'
-    };
-
-    $classes = "$baseClasses $sizeClasses $colorClasses $class";
+        'md' => 'text-xs px-4 py-3',
+        'lg' => 'text-sm px-6 py-3',
+    ];
+    $colorClass = $colorClasses[$color] ?? $colorClasses['primary'];
+    $sizeClass = $sizeClasses[$size] ?? $colorClasses['md'];
+    $widthClass = $fullWidth ? 'w-full block' : 'inline-block';
+    $finalClass = trim("font-mono {$sizeClass} {$colorClass} {$widthClass} hover:animate-glow-pulse {$class}");
 @endphp
 
 @if($type === 'link')
-    <a href="{{ $href }}" {{ $attributes->merge(['class' => $classes]) }}>
-        @if($icon)
-            <span class="mr-1">{{ $icon }}</span>
-        @endif
-        {{ $slot }}
+    <a {{ $attributes->merge(['class' => $finalClass]) }}>
+        @if($icon) <span class="mr-1">{{ $icon }}</span> @endif
+        <span class="uppercase">{{ $slot }}</span>
     </a>
-@elseif($type === 'submit')
-    <button type="submit" {{ $attributes->merge(['class' => $classes]) }}>
-        @if($icon)
-            <span class="mr-1">{{ $icon }}</span>
-        @endif
-        {{ $slot }}
+@elseif($type === 'button' || $type === 'submit')
+    <button type="{{ $type }}" {{ $attributes->merge(['class' => $finalClass]) }}>
+        @if($icon) <span class="mr-1">{{ $icon }}</span> @endif
+        <span class="uppercase">{{ $slot }}</span>
     </button>
 @else
-    <button type="{{ $type }}" {{ $attributes->merge(['class' => $classes]) }}>
-        @if($icon)
-            <span class="mr-1">{{ $icon }}</span>
-        @endif
-        {{ $slot }}
-    </button>
+    <div {{ $attributes->merge(['class' => $finalClass]) }}>
+        @if($icon) <span class="mr-1">{{ $icon }}</span> @endif
+        <span class="uppercase">{{ $slot }}</span>
+    </div>
 @endif
-
